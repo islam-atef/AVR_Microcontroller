@@ -10,15 +10,15 @@
 #define ADC_INTERFACE_H_
 
 typedef enum{
-	ADC0 = 0,
-	ADC1 = 1,
-	ADC2 = 2,
-	ADC3 = 3,
-	ADC4 = 4,
-	ADC5 = 5,
-	ADC6 = 6,
-	ADC7 = 7
-	} CHAN_NUM;
+	ADC0 ,
+	ADC1 ,
+	ADC2 ,
+	ADC3 ,
+	ADC4 ,
+	ADC5 ,
+	ADC6 ,
+	ADC7 
+} CHAN_NUM;
 
 void ADC_voidInit(void);
 

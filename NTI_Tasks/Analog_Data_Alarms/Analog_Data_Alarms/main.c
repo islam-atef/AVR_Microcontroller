@@ -25,9 +25,9 @@
 #define		EXRI0_PIN	GPIO_PD2
 #define		BUZZER_PIN	GPIO_PC6
 
-#define		SENSOR_0_MAX_VAL	999
-#define		SENSOR_1_MAX_VAL	80
-#define		SENSOR_2_MAX_VAL	1000
+#define		SENSOR_0_MAX_VAL	2000
+#define		SENSOR_1_MAX_VAL	820
+#define		SENSOR_2_MAX_VAL	820
 /************************************************************************/
 
 
@@ -84,14 +84,24 @@ int main(void)
 	{
 		
 		ReadingCheck();
-		if (Flag_Alarm != Flag_Alarm_Buffer)
+		if (Flag_Alarm )
 		{
+			if (Flag_Alarm_Buffer != Flag_Alarm)
+			{
+				// clear the display.
+				LCD_ClearDisplay();
+			}
 			Alarm_Call();
 		}
 		else
 		{
 			if(!Flag_Alarm)
 			{
+				if (Flag_Alarm_Buffer != Flag_Alarm)
+				{
+					// clear the display.
+					LCD_ClearDisplay();
+				}
 				LCD_Presentation();
 			}
 		}
@@ -103,7 +113,7 @@ int main(void)
 /************************************************************************/
 void LCD_Presentation(void)
 {
-	//LCD_ClearDisplay();
+	Flag_Alarm_Buffer = Flag_Alarm;
 	LCD_GoTo_xy(0,0);
 	LCD_WriteString("LDR Value is : ");
 	LCD_WriteNumber(Read[0]);
@@ -116,7 +126,7 @@ void LCD_Presentation(void)
 	LCD_WriteString("LM35 Value is : ");
 	LCD_WriteNumber(Read[2]);
 	LCD_WriteString("  ");
-	//_delay_ms(3000);
+	_delay_ms(3000);
 }
 /*----------------------------------------------------------------------*/
 void ReadingCheck()
@@ -144,27 +154,25 @@ void ReadingCheck()
 /*----------------------------------------------------------------------*/
 void Alarm_Call()
 {
-	// store the Flag Reading.
 	Flag_Alarm_Buffer = Flag_Alarm;
 	if (Flag_Alarm)
 	{
 		// 1 - Turn on the Buzzer.
 		GPIO_SetValue_Pin(BUZZER_PIN,HIGH);
 		// show the source and its Reading on the LCD.
-		LCD_ClearDisplay();
 		LCD_GoTo_xy(1,0);
 		switch(Alarm_Source)
 		{
 			case 0:
-				LCD_WriteString("LDR Value is : ");
+				LCD_WriteString("Sensor 1 Value is : ");
 				LCD_WriteNumber(Read[0]);
 			break;
 			case 1:
-				LCD_WriteString("LM35 Value is : ");
+				LCD_WriteString("sensor 2 Value is : ");
 				LCD_WriteNumber(Read[1]);
 			break;
 			case 2:
-				LCD_WriteString("LM35 Value is : ");
+				LCD_WriteString("sensor 3 Value is : ");
 				LCD_WriteNumber(Read[2]);
 			break;
 			default:
@@ -174,8 +182,6 @@ void Alarm_Call()
 	else
 	{
 		GPIO_SetValue_Pin(BUZZER_PIN,LOW);
-		// clear the display.
-		LCD_ClearDisplay();
 	}
 }
 /************************************************************************/
@@ -187,16 +193,17 @@ void ADC_Handler()
 	if (Flag_1)
 	{
 		GPIO_SetValue_Pin(GPIO_PC0,HIGH);
-		ADC_voidReadADCInMV(CHAN_array[0],&Read[0]);
+		ADC_voidReadADC(CHAN_array[0],&Read[0]);
+		Read[0] *= 5005/1024;
 		Flag_1 = 0;
 		Flag_2 = 1;
 		ADC_voidChannelSelect(CHAN_array[1]);
-		GPIO_SetValue_Pin(GPIO_PC3,HIGH);
 	}
 	else if(Flag_2)
 	{
 		GPIO_SetValue_Pin(GPIO_PC1,HIGH);
-		ADC_voidReadADCInMV(CHAN_array[1],&Read[1]);
+		ADC_voidReadADC(CHAN_array[1],&Read[1]);
+		Read[1] *= 5005/1024;
 		Flag_2 = 0;
 		Flag_3 = 1;
 		ADC_voidChannelSelect(CHAN_array[2]);
@@ -204,12 +211,13 @@ void ADC_Handler()
 	else if(Flag_3)
 	{
 		GPIO_SetValue_Pin(GPIO_PC2,HIGH);
-		ADC_voidReadADCInMV(CHAN_array[2],&Read[1]);
+		ADC_voidReadADC(CHAN_array[2],&Read[2]);
+		Read[2] *= 5005/1024;
 		Flag_3 = 0;
 		Flag_1 = 1;
 		ADC_voidChannelSelect(CHAN_array[0]);
 	}
-	else{}
+	else{		GPIO_SetValue_Pin(GPIO_PC3,HIGH);}
 }
 /*----------------------------------------------------------------------*/
 void EXTI0_Handler()

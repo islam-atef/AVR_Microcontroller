@@ -59,7 +59,7 @@ CONCATE(b7, b6, b5, b4, b3, b2, b1, b0)
 #define D4 INPUT
 #define D5 INPUT
 #define D6 INPUT
-#define D7 INPUT
+#define D7 OUTPUT
 
 #define PORTD_DIRECTION HELPER(D7, D6, D5, D4, D3, D2, D1, D0)
 /*______________________________________________________________________*/

@@ -66,10 +66,10 @@ void ADC_voidReadADC(CHAN_NUM chan_num , u16 *adc_reading)
 /*------------------------------------------------------*/
 void ADC_voidReadADCInMV(CHAN_NUM chan_num , u16 *adc_reading)
 {
-	u16 Reading;
-	ADC_voidReadADC(chan_num , &Reading);
-	u16 Volt_Val = ((Reading * VOLTAGE_VALUE)/ 1024);
-	*adc_reading = Volt_Val;
+	u16 *Reading = NULL;
+	ADC_voidReadADC(chan_num , Reading);
+	*Reading *= 5005 / 1024;
+	*adc_reading = *Reading;
 }
 /*------------------------------------------------------*/
 void ADC_voidChannelSelect(CHAN_NUM chan_num )
